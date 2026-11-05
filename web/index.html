@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bookverse</title>
+    <meta name="description" content="A library management system: books on the shelf, members, and borrowing with due dates.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='6' width='6' height='21' rx='1' fill='%231e3a2f'/%3E%3Crect x='12' y='4' width='7' height='23' rx='1' fill='%238a2a2b'/%3E%3Crect x='20' y='8' width='6' height='19' rx='1' fill='%23b48a4a' transform='rotate(8 23 17)'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+
+<section class="auth" id="auth" hidden>
+    <div class="auth-art">
+        <a class="brand light" href="#"><svg><use href="#i-book"/></svg><span><b>Library</b>Bookverse<small></small></span></a>
+        <div class="auth-copy">
+            <h1>Every book,<br><em>in its place.</em></h1>
+        </div>
+        <div class="deco-shelf" aria-hidden="true">
+            <i style="--h:150px;--w:40px;--c:#8a2a2b"></i><i style="--h:176px;--w:52px;--c:#b48a4a"></i><i style="--h:138px;--w:34px;--c:#2f4b6e"></i><i style="--h:190px;--w:46px;--c:#f3ecdd"></i><i style="--h:160px;--w:38px;--c:#5b3a5e"></i><i class="lean" style="--h:170px;--w:44px;--c:#a0522d"></i><i style="--h:146px;--w:50px;--c:#3d5a40"></i><i style="--h:182px;--w:36px;--c:#24323f"></i>
+        </div>
+    </div>
+
+    <div class="auth-side">
+        <div class="lib-card">
+            <div class="lib-card-top">
+                <span>Library Card</span>
+                <span class="mono" id="card-no">No. 0000</span>
+            </div>
+            <div class="tabs" role="tablist">
+                <button type="button" role="tab" class="tab on" data-mode="login">Log in</button>
+                <button type="button" role="tab" class="tab" data-mode="signup">Create account</button>
+            </div>
+            <form id="auth-form" novalidate>
+                <label class="field"><span>Username</span><input name="username" autocomplete="username" required minlength="3" maxlength="30"></label>
+                <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required minlength="6"></label>
+                <p class="form-error" id="auth-error" role="alert"></p>
+                <button class="btn primary wide" type="submit" id="auth-submit">Log in</button>
+            </form>
+            <p class="auth-note" id="auth-note">New here? Create an account first, then you can log in any time.</p>
+        </div>
+    </div>
+</section>
+
+<div class="app" id="app" hidden>
+    <header class="top">
+        <a class="brand light" href="#shelf"><svg><use href="#i-book"/></svg><span><b>Library</b><small>Management System</small></span></a>
+        <nav class="nav">
+            <a href="#shelf" data-view="shelf">Shelf</a>
+            <a href="#members" data-view="members">Members</a>
+            <a href="#loans" data-view="loans">Loans</a>
+        </nav>
+        <div class="who">
+            <span class="user-pill" id="user-name"></span>
+            <button type="button" class="btn ghost-light small" id="logout">Log out</button>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="view" id="view-shelf">
+            <div class="view-head">
+                <div>
+                    <p class="eyebrow dark">The collection</p>
+                    <h2>The Shelf</h2>
+                </div>
+                <button type="button" class="btn primary" id="add-book"><svg><use href="#i-plus"/></svg>Add book</button>
+            </div>
+
+            <div class="stats" id="stats"></div>
+
+            <form class="catalog" id="search-form" role="search">
+                <div class="drawer-tabs" role="radiogroup" aria-label="Search by">
+                    <button type="button" class="drawer on" data-by="title">Title</button>
+                    <button type="button" class="drawer" data-by="author">Author</button>
+                    <button type="button" class="drawer" data-by="id">ID</button>
+                </div>
+                <div class="search-box">
+                    <svg><use href="#i-search"/></svg>
+                    <input id="search-input" placeholder="Search by title…" aria-label="Search">
+                    <button type="button" class="clear" id="search-clear" aria-label="Clear search" hidden><svg><use href="#i-x"/></svg></button>
+                </div>
+            </form>
+
+            <p class="result-note" id="result-note"></p>
+            <div class="bookcase" id="bookcase"></div>
+            <p class="hint">Tap a book to open its catalog card.</p>
+        </section>
+
+        <section class="view" id="view-members" hidden>
+            <div class="view-head">
+                <div>
+                    <p class="eyebrow dark">Card holders</p>
+                    <h2>Members</h2>
+                </div>
+                <button type="button" class="btn primary" id="add-member"><svg><use href="#i-plus"/></svg>Add member</button>
+            </div>
+            <div class="members" id="members"></div>
+        </section>
+
+        <section class="view" id="view-loans" hidden>
+            <div class="view-head">
+                <div>
+                    <p class="eyebrow dark">Borrowing</p>
+                    <h2>Loans</h2>
+                </div>
+                <button type="button" class="btn primary" id="new-loan"><svg><use href="#i-plus"/></svg>Borrow a book</button>
+            </div>
+            <div class="slip">
+                <div class="slip-head">
+                    <span>Date Due</span>
+                    <small>Books are lent for 14 days</small>
+                </div>
+                <div class="loans" id="loans"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="foot">Library Management System </footer>
+</div>
+
+<div class="modal" id="modal" hidden>
+    <div class="modal-back" data-close></div>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button type="button" class="modal-x" data-close aria-label="Close"><svg><use href="#i-x"/></svg></button>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
